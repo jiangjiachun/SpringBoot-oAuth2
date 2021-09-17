@@ -26,52 +26,29 @@ import com.nimbusds.jose.proc.SecurityContext;
 @Configuration(proxyBeanMethods = false)
 public class AuthorizationServerConfig {
 
-    /*@Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-        http.addFilterBefore(new MyOidcProviderConfigurationEndpointFilter(providerSettings()),
-                AbstractPreAuthenticatedProcessingFilter.class);
-    //        http.formLogin(Customizer.withDefaults());
-        return http.build();
-    }*/
-
-    /*@Bean
-    private PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }*/
-
-    // @formatter:off
     @Bean
     public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {
         JdbcRegisteredClientRepository registeredClientRepository = new JdbcRegisteredClientRepository(jdbcTemplate);
-        
+
         RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("messaging-client")
-                .clientSecret("secret")
+                .clientId("messaging-client").clientSecret("secret")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc")
-//                .redirectUri("http://127.0.0.1:8080/authorized")
-                .scope(OidcScopes.OPENID)
-                .scope("message.read")
-                .scope("message.write")
-                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
-                .build();
-        
-        RegisteredClient client =  registeredClientRepository.findByClientId("messaging-client");
-        
-        if(client == null) {
+                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc").scope(OidcScopes.OPENID)
+                .scope("message.read").scope("message.write")
+                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build()).build();
+
+        RegisteredClient client = registeredClientRepository.findByClientId("messaging-client");
+
+        if (client == null) {
             registeredClientRepository.save(registeredClient);
         }
-         // Save registered client in db as if in-memory
 //        InMemoryRegisteredClientRepository registeredClientRepository = new InMemoryRegisteredClientRepository(registeredClient);
 
         return registeredClientRepository;
     }
-    // @formatter:on
 
     @Bean
     public OAuth2AuthorizationService authorizationService(JdbcTemplate jdbcTemplate,

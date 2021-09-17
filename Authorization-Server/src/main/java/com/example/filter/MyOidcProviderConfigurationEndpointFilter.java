@@ -25,6 +25,12 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.UriComponentsBuilder;
 
+/**
+ * 增加 end_session_endpoint
+ * 
+ * @author jjc
+ *
+ */
 public class MyOidcProviderConfigurationEndpointFilter extends OncePerRequestFilter {
     /**
      * The default endpoint {@code URI} for OpenID Provider Configuration requests.
@@ -51,7 +57,7 @@ public class MyOidcProviderConfigurationEndpointFilter extends OncePerRequestFil
             return;
         }
 
-        // �˳���ַ
+        // 退出确认地址
         String logout = UrlUtils.buildFullRequestUrl(request.getScheme(), request.getServerName(),
                 request.getServerPort(), "/logout", null);
 
