@@ -20,7 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.example.filter.MyOAuth2AuthorizationRequestRedirectFilter;
+import com.example.filter.MyOAuth2RedirectUrlCache;
 
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -28,8 +28,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private ClientRegistrationRepository clientRegistrationRepository;
 
-    @Value("${front.index.path}")
-    private String frontIndexPath;
+    @Value("${front.base-url}")
+    private String frontBaseUrl;
 
     private String authorizationBaseUrl = "/oauth2/authorization";
 
@@ -57,18 +57,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
          * MySavedRequestAwareAuthenticationSuccessHandler());
          */
 
-        // 登录重定向地址缓存到session
-        http.addFilterBefore(new MyOAuth2AuthorizationRequestRedirectFilter(authorizationBaseUrl, frontIndexPath),
-                OAuth2AuthorizationRequestRedirectFilter.class);
-
         // 跨域请求，如果spring mvc配置了cors自动获取，否则获取CorsConfigurationSource
         http.cors(withDefaults());
+
+        // 取消默认的请求缓存
+        http.requestCache(cache -> cache.requestCache(new MyHttpSessionRequestCache()));
+
+        // 登录重定向地址缓存到session
+        http.addFilterBefore(new MyOAuth2RedirectUrlCache(authorizationBaseUrl, frontBaseUrl),
+                OAuth2AuthorizationRequestRedirectFilter.class);
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(frontIndexPath));
+        configuration.setAllowedOrigins(Arrays.asList(frontBaseUrl));
         // 如果同时开启csrf和cors，需要设置可读取的hedaers['x-csrf-token']
         // ajax请求通过设置setRequestHeader传递CSRF令牌
         configuration.setAllowedHeaders(Arrays.asList("x-csrf-token"));

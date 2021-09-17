@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class DefaultController {
 
-    @Value("${front.index.path}")
-    private String frontIndexPath;
+    @Value("${front.base-url}")
+    private String frontBaseUrl;
 
     @GetMapping("/")
     public String root() {
 //        return "index";
-        return "redirect:" + frontIndexPath;
+        return "redirect:" + frontBaseUrl;
     }
 
     @GetMapping("/index")

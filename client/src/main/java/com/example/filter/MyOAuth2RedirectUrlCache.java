@@ -10,17 +10,19 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-public class MyOAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
+public class MyOAuth2RedirectUrlCache extends OncePerRequestFilter {
 
-    public final String REDIRECT = "redirect";
+    static final String REDIRECT = "redirect";
 
-    private String frontIndexPath;
+    static final String SAVED_REQUEST = "SPRING_SECURITY_SAVED_REQUEST";
+
+    private String frontBaseUrl;
 
     private String baseURI;
 
-    public MyOAuth2AuthorizationRequestRedirectFilter(String baseURI, String frontIndexPath) {
+    public MyOAuth2RedirectUrlCache(String baseURI, String frontBaseUrl) {
         this.baseURI = baseURI;
-        this.frontIndexPath = frontIndexPath;
+        this.frontBaseUrl = frontBaseUrl;
     }
 
     @Override
@@ -28,9 +30,9 @@ public class MyOAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFi
             throws ServletException, IOException {
         if (request.getRequestURI().startsWith(baseURI)) {
             String redirect = request.getParameter("redirect");
-            if (StringUtils.hasText(redirect) && redirect.startsWith(frontIndexPath)) {
+            if (StringUtils.hasText(redirect) && redirect.startsWith(frontBaseUrl)) {
                 MySavedRequest defaultSavedRequest = new MySavedRequest(redirect);
-                request.getSession().setAttribute("SPRING_SECURITY_SAVED_REQUEST", defaultSavedRequest);
+                request.getSession().setAttribute(SAVED_REQUEST, defaultSavedRequest);
             }
         }
         filterChain.doFilter(request, response);
