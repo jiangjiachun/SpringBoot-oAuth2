@@ -1,15 +1,18 @@
 package com.example.web;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class DefaultController {
 
     /**
-     * µÇÂ¼Ò³Ãæ
+     * ç™»å½•é¡µé¢
      * 
      * @return
      */
@@ -19,7 +22,7 @@ public class DefaultController {
     }
 
     /**
-     * Ê×Ò³
+     * é¦–é¡µ
      * 
      * @return
      */
@@ -29,7 +32,7 @@ public class DefaultController {
     }
 
     /**
-     * ÍË³öÈ·ÈÏÒ³Ãæ
+     * é€€å‡ºç¡®è®¤é¡µé¢
      * 
      * @return
      */
@@ -39,8 +42,10 @@ public class DefaultController {
     }
 
     @ResponseBody
-    @PostMapping("authenticated")
-    public boolean authenticated() {
-        return true;
+    @GetMapping("authenticated")
+    public Map<String, Object> authenticated(CsrfToken token) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("csrf", token);
+        return map;
     }
 }
